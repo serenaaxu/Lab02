@@ -1,21 +1,67 @@
 def carica_da_file(file_path):
     """Carica i libri dal file"""
     # TODO
+    try:
+        with open(file_path, "r", encoding = "utf-8") as f:
+            righe = f.readlines()
+    except FileNotFoundError:
+        print("File not found")
+        return None
+    num_sezioni = 5
+    biblioteca = [[] for i in range(num_sezioni)]
+    for riga in righe:
+        campi = [c.strip() for c in riga.split(",")]
+        if len(campi) != num_sezioni:
+            continue
+        titolo, autore, anno, pagine, sezione = campi
+        libro = {"titolo" : titolo,
+        "autore" : autore,
+        "anno" : anno,
+        "pagine" : pagine,
+        "sezione" : sezione}
+
+        biblioteca.append(libro)
+        return biblioteca
+
 
 
 def aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, file_path):
     """Aggiunge un libro nella biblioteca"""
     # TODO
+    for sezione_libri in biblioteca:
+        for libro in sezione_libri:
+            if libro["titolo"] == titolo:
+                print("Il titolo è già presente.")
+                return None
+    nuovo_libro = {
+        "titolo" : titolo,
+        "autore" : autore,
+        "anno" : anno,
+        "pagine" : pagine,
+        "sezione" : sezione
+    }
+    try:
+        with open(file_path, "a", encoding="utf-8") as f:
+            f.write(f"\n{titolo},{autore},{anno},{pagine},{sezione}\n")
+    except FileNotFoundError:
+        print("File not found")
+        return None
 
 
 def cerca_libro(biblioteca, titolo):
     """Cerca un libro nella biblioteca dato il titolo"""
     # TODO
-
+    for sezione_libri in biblioteca:
+        for libro in sezione_libri:
+            if libro["titolo"] == titolo:
+                return f"{libro['titolo']}, {libro['autore']}, {libro['anno']}, {libro['pagine']}, {libro['sezione']}"
+            return None
 
 def elenco_libri_sezione_per_titolo(biblioteca, sezione):
     """Ordina i titoli di una data sezione della biblioteca in ordine alfabetico"""
     # TODO
+    titoli = [libro["titolo"] for libro in biblioteca[sezione-1]]
+    return sorted(titoli)
 
 
 def main():
