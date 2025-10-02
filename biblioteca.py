@@ -1,8 +1,8 @@
-def carica_da_file(file_path):
+def carica_da_file(filename):
     """Carica i libri dal file"""
     # TODO
     try:
-        with open(file_path, "r", encoding = "utf-8") as f:
+        with open(filename, "r", encoding = "utf-8") as f:
             righe = f.readlines()
     except FileNotFoundError:
         print("File not found")
@@ -16,12 +16,14 @@ def carica_da_file(file_path):
         titolo, autore, anno, pagine, sezione = campi
         libro = {"titolo" : titolo,
         "autore" : autore,
-        "anno" : anno,
-        "pagine" : pagine,
-        "sezione" : sezione}
+        "anno" : int(anno),
+        "pagine" : int(pagine),
+        "sezione" : int(sezione)}
 
-        biblioteca.append(libro)
-        return biblioteca
+        if 1 <= libro["sezione"] <= num_sezioni:
+            biblioteca[libro["sezione"] - 1].append(libro)
+
+    return biblioteca
 
 
 
@@ -30,16 +32,19 @@ def aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, file_path)
     # TODO
     for sezione_libri in biblioteca:
         for libro in sezione_libri:
-            if libro["titolo"] == titolo:
+            if libro["titolo"].lower() == titolo.lower():
                 print("Il titolo è già presente.")
                 return None
     nuovo_libro = {
         "titolo" : titolo,
         "autore" : autore,
-        "anno" : anno,
-        "pagine" : pagine,
-        "sezione" : sezione
+        "anno" : int(anno),
+        "pagine" : int(pagine),
+        "sezione" : int(sezione)
     }
+
+    biblioteca[sezione-1].append(nuovo_libro)
+
     try:
         with open(file_path, "a", encoding="utf-8") as f:
             f.write(f"\n{titolo},{autore},{anno},{pagine},{sezione}\n")
@@ -53,9 +58,9 @@ def cerca_libro(biblioteca, titolo):
     # TODO
     for sezione_libri in biblioteca:
         for libro in sezione_libri:
-            if libro["titolo"] == titolo:
+            if libro["titolo"].lower() == titolo.lower():
                 return f"{libro['titolo']}, {libro['autore']}, {libro['anno']}, {libro['pagine']}, {libro['sezione']}"
-            return None
+    return None
 
 def elenco_libri_sezione_per_titolo(biblioteca, sezione):
     """Ordina i titoli di una data sezione della biblioteca in ordine alfabetico"""
