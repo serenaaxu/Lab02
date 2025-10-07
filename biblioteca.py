@@ -37,25 +37,25 @@ def aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, filename):
     # TODO
     for sezione_libri in biblioteca:
         for libro in sezione_libri:
-            if libro['titolo'].strip('"').lower() == titolo.lower():
-                return "duplicato"
+            if libro["titolo"].lower() == titolo.lower():
+                print("Il libro è già presente.")
+                return None
 
-    nuovo_libro = {
-        "titolo" : titolo,
-        "autore" : autore,
-        "anno" : int(anno),
-        "pagine" : int(pagine),
-        "sezione" : int(sezione)
-    }
+    nuovo_libro = {"titolo" : titolo,
+                "autore" : autore,
+                "anno" : int(anno),
+                "pagine" : int(pagine),
+                "sezione" : int(sezione)
+                }
 
-    biblioteca[sezione-1].append(nuovo_libro)
+                biblioteca[sezione-1].append(nuovo_libro)
 
-    try:
-        with open(filename, "a", encoding="utf-8") as f:
-            f.write(f"{titolo},{autore},{anno},{pagine},{sezione}\n")
-            return nuovo_libro
-    except FileNotFoundError:
-        return "errore"
+                try:
+                    with open(filename, "a", encoding="utf-8") as f:
+                        f.write(f"{titolo},{autore},{anno},{pagine},{sezione}\n")
+                        return nuovo_libro
+                except FileNotFoundError:
+                    return "errore"
 
 
 def cerca_libro(biblioteca, titolo):
@@ -102,7 +102,7 @@ def main():
                 print("Prima carica la biblioteca da file.")
                 continue
 
-            titolo = input("Titolo del libro: ").strip()
+            titolo = input("Titolo del libro: ").strip('"')
             autore = input("Autore: ").strip()
             try:
                 anno = int(input("Anno di pubblicazione: ").strip())
