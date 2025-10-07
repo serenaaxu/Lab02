@@ -1,18 +1,23 @@
+import csv
+
 def carica_da_file(filename):
     """Carica i libri dal file"""
     # TODO
     try:
         with open(filename, "r", encoding = "utf-8") as f:
-            righe = f.readlines()
+            reader = csv.reader(f)
+            righe = list(reader)
     except FileNotFoundError:
         print("File not found")
         return None
     num_sezioni = 5
+
     biblioteca = [[] for i in range(num_sezioni)]
-    for riga in righe:
-        campi = [c.strip() for c in riga.split(",")]
+    for riga in righe[1:]:
+        campi = [c.strip() for c in riga]
         if len(campi) != num_sezioni:
             continue
+
         titolo, autore, anno, pagine, sezione = campi
         libro = {"titolo" : titolo,
         "autore" : autore,
@@ -21,20 +26,20 @@ def carica_da_file(filename):
         "sezione" : int(sezione)}
 
         if 1 <= libro["sezione"] <= num_sezioni:
-            biblioteca[libro["sezione"] - 1].append(libro)
+            biblioteca[libro['sezione'] - 1].append(libro)
 
     return biblioteca
 
 
 
-def aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, file_path):
+def aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, filename):
     """Aggiunge un libro nella biblioteca"""
     # TODO
     for sezione_libri in biblioteca:
         for libro in sezione_libri:
-            if libro["titolo"].lower() == titolo.lower():
-                print("Il titolo è già presente.")
-                return None
+            if libro['titolo'].strip('"').lower() == titolo.lower():
+                return "duplicato"
+
     nuovo_libro = {
         "titolo" : titolo,
         "autore" : autore,
@@ -46,11 +51,11 @@ def aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, file_path)
     biblioteca[sezione-1].append(nuovo_libro)
 
     try:
-        with open(file_path, "a", encoding="utf-8") as f:
-            f.write(f"\n{titolo},{autore},{anno},{pagine},{sezione}\n")
+        with open(filename, "a", encoding="utf-8") as f:
+            f.write(f"{titolo},{autore},{anno},{pagine},{sezione}\n")
+            return nuovo_libro
     except FileNotFoundError:
-        print("File not found")
-        return None
+        return "errore"
 
 
 def cerca_libro(biblioteca, titolo):
@@ -65,13 +70,15 @@ def cerca_libro(biblioteca, titolo):
 def elenco_libri_sezione_per_titolo(biblioteca, sezione):
     """Ordina i titoli di una data sezione della biblioteca in ordine alfabetico"""
     # TODO
+    if sezione < 1 or sezione > len(biblioteca):
+        return None
     titoli = [libro["titolo"] for libro in biblioteca[sezione-1]]
     return sorted(titoli)
 
 
 def main():
     biblioteca = []
-    file_path = "biblioteca.csv"
+    filename = "biblioteca.csv"
 
     while True:
         print("\n--- MENU BIBLIOTECA ---")
@@ -85,7 +92,7 @@ def main():
 
         if scelta == "1":
             while True:
-                file_path = input("Inserisci il path del file da caricare: ").strip()
+                file_path = input("Inserisci il nome del file da caricare: ").strip()
                 biblioteca = carica_da_file(file_path)
                 if biblioteca is not None:
                     break
@@ -105,11 +112,13 @@ def main():
                 print("Errore: inserire valori numerici validi per anno, pagine e sezione.")
                 continue
 
-            libro = aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, file_path)
-            if libro:
-                print(f"Libro aggiunto con successo!")
-            else:
-                print("Non è stato possibile aggiungere il libro.")
+            libro_aggiunto = aggiungi_libro(biblioteca, titolo, autore, anno, pagine, sezione, filename)
+            if libro_aggiunto == "duplicato":
+                print("Il libro è già presente nella biblioteca.")
+            elif libro_aggiunto == "errore":
+                print("Errore durante scrittura.")
+            elif libro_aggiunto is not None:
+                print("Libro aggiunto con successo!")
 
         elif scelta == "3":
             if not biblioteca:
